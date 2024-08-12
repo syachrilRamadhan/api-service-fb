@@ -18,25 +18,20 @@ func NewProdukHandler(produkService product.Service) *produkHandler {
 	return &produkHandler{produkService}
 }
 
-func (h *produkHandler) RootHandler(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Welcome to my RESTful API!",
-		"version": "1.0.0",
-		"author":  "Syachril Ramadhan",
-	})
-}
+func (h *produkHandler) GetProducts(c *gin.Context) {
+	produk, err := h.produkService.GetProduk()
 
-func (h *produkHandler) ProductsHandler(c *gin.Context) {
-	id := c.Param("id")
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Product details for ID " + id,
-	})
-}
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"errors": err,
+		})
 
-func (h *produkHandler) QueryHandler(c *gin.Context) {
-	product := c.Query("product")
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Product details for product " + product,
+		"success": true,
+		"data":    produk,
 	})
 }
 

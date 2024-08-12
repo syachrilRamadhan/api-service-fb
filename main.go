@@ -26,9 +26,7 @@ func main() {
 
 	router := gin.Default()
 
-	router.GET("/", produkHandler.RootHandler)
-	router.GET("/products/:id", produkHandler.ProductsHandler)
-	router.GET("/q", produkHandler.QueryHandler)
+	router.GET("/products", produkHandler.GetProducts)
 	router.POST("/products", produkHandler.PostProductsHandler)
 
 	router.Run()
