@@ -10,7 +10,15 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-func RootHandler(c *gin.Context) {
+type produkHandler struct {
+	produkService product.Service
+}
+
+func NewProdukHandler(produkService product.Service) *produkHandler {
+	return &produkHandler{produkService}
+}
+
+func (h *produkHandler) RootHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Welcome to my RESTful API!",
 		"version": "1.0.0",
@@ -18,24 +26,24 @@ func RootHandler(c *gin.Context) {
 	})
 }
 
-func ProductsHandler(c *gin.Context) {
+func (h *produkHandler) ProductsHandler(c *gin.Context) {
 	id := c.Param("id")
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Product details for ID " + id,
 	})
 }
 
-func QueryHandler(c *gin.Context) {
+func (h *produkHandler) QueryHandler(c *gin.Context) {
 	product := c.Query("product")
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Product details for product " + product,
 	})
 }
 
-func PostProductsHandler(c *gin.Context) {
-	var inputProduct product.Product
+func (h *produkHandler) PostProductsHandler(c *gin.Context) {
+	var productRequest product.ProdukRequest
 
-	err := c.ShouldBindJSON(&inputProduct)
+	err := c.ShouldBindJSON(&productRequest)
 	if err != nil {
 		// cek apakah error karena validasi
 		if validationErrors, ok := err.(validator.ValidationErrors); ok {
@@ -64,8 +72,20 @@ func PostProductsHandler(c *gin.Context) {
 		return
 	}
 
+	produk, err := h.produkService.CreateProduk(productRequest)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"errors": err,
+		})
+
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"title": inputProduct.Title,
-		"price": inputProduct.Price,
+		"success": true,
+		"status":  200,
+		"message": "create product successfully",
+		"data":    produk,
 	})
 }
