@@ -27,7 +27,8 @@ func main() {
 	router := gin.Default()
 
 	router.GET("/products", produkHandler.GetProducts)
-	router.POST("/products", produkHandler.PostProductsHandler)
+	router.GET("/product/:id", produkHandler.GetProdukById)
+	router.POST("/product", produkHandler.PostProductsHandler)
 
 	router.Run()
 }

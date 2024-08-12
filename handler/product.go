@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -29,9 +30,48 @@ func (h *produkHandler) GetProducts(c *gin.Context) {
 		return
 	}
 
+	var productsResponse []product.ProdukResponse
+
+	for _, p := range produk {
+		productResponse := product.ProdukResponse{
+			ID:        p.ID,
+			Title:     p.Title,
+			Price:     p.Price,
+			Deskripsi: p.Deskripsi,
+		}
+
+		productsResponse = append(productsResponse, productResponse)
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"data":    produk,
+		"data":    productsResponse,
+	})
+}
+
+func (h *produkHandler) GetProdukById(c *gin.Context) {
+	idString := c.Param("id")
+	id, _ := strconv.Atoi(idString)
+
+	pr, err := h.produkService.GetProdukById(id)
+
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": "Product not found",
+		})
+		return
+	}
+
+	productResponse := product.ProdukResponse{
+		ID:        pr.ID,
+		Title:     pr.Title,
+		Price:     pr.Price,
+		Deskripsi: pr.Deskripsi,
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    productResponse,
 	})
 }
 

@@ -1,6 +1,8 @@
 package product
 
 import (
+	"errors"
+
 	"gorm.io/gorm"
 )
 
@@ -28,10 +30,17 @@ func (r *repository) GetProduk() ([]Produk, error) {
 
 func (r *repository) GetProdukById(ID int) (Produk, error) {
 	var produk Produk
+	result := r.db.First(&produk, ID)
 
-	err := r.db.Find(&produk, ID).Error
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return Produk{}, nil
+	}
 
-	return produk, err
+	if result.Error != nil {
+		return Produk{}, result.Error
+	}
+
+	return produk, nil
 }
 
 func (r *repository) CreateProduk(product Produk) (Produk, error) {
