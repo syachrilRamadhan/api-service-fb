@@ -32,13 +32,8 @@ func (h *produkHandler) GetProducts(c *gin.Context) {
 
 	var productsResponse []product.ProdukResponse
 
-	for _, p := range produk {
-		productResponse := product.ProdukResponse{
-			ID:        p.ID,
-			Title:     p.Title,
-			Price:     p.Price,
-			Deskripsi: p.Deskripsi,
-		}
+	for _, productObj := range produk {
+		productResponse := converJsonResponse(productObj)
 
 		productsResponse = append(productsResponse, productResponse)
 	}
@@ -53,7 +48,7 @@ func (h *produkHandler) GetProdukById(c *gin.Context) {
 	idString := c.Param("id")
 	id, _ := strconv.Atoi(idString)
 
-	pr, err := h.produkService.GetProdukById(id)
+	productObj, err := h.produkService.GetProdukById(id)
 
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
@@ -62,12 +57,7 @@ func (h *produkHandler) GetProdukById(c *gin.Context) {
 		return
 	}
 
-	productResponse := product.ProdukResponse{
-		ID:        pr.ID,
-		Title:     pr.Title,
-		Price:     pr.Price,
-		Deskripsi: pr.Deskripsi,
-	}
+	productResponse := converJsonResponse(productObj)
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
@@ -123,4 +113,13 @@ func (h *produkHandler) PostProductsHandler(c *gin.Context) {
 		"message": "create product successfully",
 		"data":    produk,
 	})
+}
+
+func converJsonResponse(productObj product.Produk) product.ProdukResponse {
+	return product.ProdukResponse{
+		ID:        productObj.ID,
+		Title:     productObj.Title,
+		Price:     productObj.Price,
+		Deskripsi: productObj.Deskripsi,
+	}
 }
